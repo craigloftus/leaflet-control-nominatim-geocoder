@@ -1,4 +1,4 @@
-L.Control.BingGeocoder = L.Control.extend({
+L.Control.NominatimGeocoder = L.Control.extend({
 	options: {
 		collapsed: true,
 		position: 'topright',
@@ -51,7 +51,7 @@ L.Control.BingGeocoder = L.Control.extend({
 
 			var link = this._layersLink = L.DomUtil.create('a', className + '-toggle', container);
 			link.href = '#';
-			link.title = 'Bing Geocoder';
+			link.title = 'Nominatim Geocoder';
 
 			L.DomEvent.addListener(link, L.Browser.touch ? 'click' : 'focus', this._expand, this);
 
