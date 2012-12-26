@@ -4,18 +4,23 @@ L.Control.BingGeocoder = L.Control.extend({
 		position: 'topright',
 		text: 'Locate',
 		callback: function (results) {
-			var bbox = results.resourceSets[0].resources[0].bbox,
-				first = new L.LatLng(bbox[0], bbox[1]),
-				second = new L.LatLng(bbox[2], bbox[3]),
-				bounds = new L.LatLngBounds([first, second]);
-			this._map.fitBounds(bounds);
+			// Check if no results are returned
+			if (results.length >= 1) {
+				// Just take the first place
+				var bbox = results[0].boundingbox,
+					southWest = new L.LatLng(bbox[0], bbox[2]),
+					northEast = new L.LatLng(bbox[1], bbox[3]),
+					bounds = new L.LatLngBounds(southWest, northEast);
+				// Center on it
+				this._map.fitBounds(bounds);
+			}
+			// TODO Indicate lack of results to user
 		}
 	},
 
 	_callbackId: 0,
 
-	initialize: function (key, options) {
-		this.key = key;
+	initialize: function (options) {
 		L.Util.setOptions(this, options);
 	},
 
@@ -62,15 +67,17 @@ L.Control.BingGeocoder = L.Control.extend({
 
 	_geocode : function (event) {
 		L.DomEvent.preventDefault(event);
-		this._callbackId = "_l_binggeocoder_" + (this._callbackId++);
+		this._callbackId = "_l_nominatimgeocoder_" + (this._callbackId++);
 		window[this._callbackId] = L.Util.bind(this.options.callback, this);
 
 		var params = {
-			query: this._input.value,
-			key : this.key,
-			jsonp : this._callbackId
+			q: this._input.value,
+			format: "json",
+			// We only use the first result currently
+			limit: 1,
+			json_callback : this._callbackId
 		},
-		url = "http://dev.virtualearth.net/REST/v1/Locations" + L.Util.getParamString(params),
+		url =  "http://open.mapquestapi.com/nominatim/v1/search" + L.Util.getParamString(params),
 		script = document.createElement("script");
 
 		script.type = "text/javascript";
